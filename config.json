@@ -2,7 +2,7 @@
   "key": "",
   "secret": "",
   "maxPositionCount": 20,
-  "costPerOrder": 40,
+  "costPerOrder": 10,
   "symbols": [
     "BTCUSDT",
     "ETHUSDT",

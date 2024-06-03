@@ -9,7 +9,7 @@ from binance.um_futures import UMFutures
 from ding_talk import DingTalk
 import pandas as pd
 import numpy as np
-
+import os
 
 class Trade:
     client = None
@@ -129,7 +129,7 @@ class Trade:
                 return
 
             # 数量最大
-            maxQty = self.symbolsInfoMap[symbol]['filters'][1]['maxQty']
+            maxQty = self.symbolsInfoMap[symbol]['filters'][2]['maxQty']
             positionSide = {
                 'SELL': 'LONG',
                 'BUY': 'SHORT'
@@ -270,8 +270,10 @@ class Trade:
             logging.error(msg)
 
     def init_config(self):
+        current_path = os.getcwd()
+        config_path = os.path.join(current_path, 'config.json')
         # 打开配置文件并加载内容
-        with open("config.json", 'r', encoding='utf-8') as f:
+        with open(config_path, 'r', encoding='utf-8') as f:
             config_data = json.load(f)
 
         self.symbols = config_data['symbols']
@@ -282,8 +284,8 @@ class Trade:
 
 
 if __name__ == "__main__":
-    # place_order('BTCUSDT', 'BUY', 69914)
-    # stop_price_order('BTCUSDT', 'SELL')
+    # trade.place_order('BONDUSDT', 'BUY', 3.373)
+    # trade.stop_price_order('BONDUSDT', 'SELL', 3.367, False)
     # notify_balance()
     trade = Trade()
     i = 0
@@ -291,8 +293,9 @@ if __name__ == "__main__":
         try:
             logging.info(f"运行正常")
             # 每小时通报余额
-            if i % 12 == 0:
+            if i % 60 == 0:
                 trade.notify_balance()
+            i += 1
 
             trade.monitor_kline()
             time.sleep(60)  # 每1分钟运行一次
