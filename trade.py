@@ -11,6 +11,7 @@ import pandas as pd
 import numpy as np
 import os
 
+
 class Trade:
     client = None
 
@@ -167,26 +168,28 @@ class Trade:
             recent_close = df['close'].iloc[-1]
             previous_close = df['close'].iloc[-2]
             price_change_percent = (recent_close - previous_close) / previous_close * 100
-            recent_volume = df['volume'].iloc[-1]
-            average_volume = df['volume'].iloc[-20:].mean()
 
-            if recent_volume == 0 or average_volume == 0:
+            recent_volume = df['volume'].iloc[-1]
+            previous_volume = df['volume'].iloc[-2:]
+
+            if recent_volume == 0 or previous_volume == 0:
                 logging.error(f"{symbol}成交量为0")
                 continue
 
-            volume = recent_volume / average_volume
+            volume = recent_volume / previous_volume
 
             # 检查当前时刻是否是金叉或死叉
             current_golden_cross = df['golden_cross'].iloc[-1]
             current_death_cross = df['death_cross'].iloc[-1]
 
+            logging.info(
+                f"币对: {symbol} 当前价:{recent_close} 当前交易量:{recent_volume} 上次交易量{previous_volume} Gold::{current_golden_cross} Death:{current_death_cross}"
+            )
+
             # 是否持仓
             if symbol in self.positions:
-                logging.info(
-                    f"当前存在持仓: {symbol}{self.positions[symbol]} 当前价:{recent_close} Gold::{current_golden_cross} Death:{current_death_cross}"
-                )
                 open_price = self.positions[symbol]['entry_price']
-
+                logging.info(f"当前持仓: {symbol}")
                 # 止盈
                 if self.positions[symbol]['side'] == 'BUY' and recent_close >= open_price * 1.01:
                     self.stop_price_order(symbol, 'SELL', recent_close, True)
